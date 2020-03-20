@@ -83,6 +83,7 @@ class fc_model:
     def evaluate(self, x, y):
         metrics = self.model.evaluate(x, y)
         print("Evaluation results: \n\tloss: {}\n\taccuracy: {}".format(metrics[0], metrics[1]))
+        return metrics
 
 def main():
     parser = argparse.ArgumentParser(description="Training a fully connected neural network for mnist")
@@ -103,11 +104,16 @@ def main():
     (x_train, y_train),(x_test, y_test) = mnist.load_data()
     x_train, x_test = x_train / 255.0, x_test / 255.0
     
+    experiment.log_data_ref(data=x_train, data_name='x_train')
+    experiment.log_data_ref(data=y_train, data_name='y_train')
+
     model = fc_model(num_neurons=args.num_neurons, dropout=args.dropout, lr = args.lr, optimizer = args.optimizer)
 
     model.train(x_train, y_train)
 
-    model.evaluate(x_test, y_test)
+    eval_metrics=model.evaluate(x_test, y_test)
+
+    experiment.log_metrics(loss=eval_metrics[0],accuracy=eval_metrics[1])
     
     
 if __name__ == "__main__":
