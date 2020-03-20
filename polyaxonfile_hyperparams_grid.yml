@@ -1,0 +1,45 @@
+version: 1
+
+kind: group
+
+framework: tensorflow
+
+inputs:
+  - name: num_neurons
+    is_optional: false
+    default: 20
+    type: str
+  - name: dropout
+    is_optional: false
+    default: 0.2
+    type: float
+  - name: lr
+    is_optional: false
+    default: 0.001
+    type: float
+  - name: optimizer
+    is_optional: false
+    default: Adam
+    type: str
+
+hptuning:
+  concurrency: 5
+
+  matrix:
+    lr:
+      values: [0.001,0.01]
+    dropout:
+      values: [0,0,1,0.2, 0.3]
+    num_neurons:
+      values: [10,20,10 10, 20 20, 20 20 10]
+
+build:
+  image: tensorflow/tensorflow:2.2.0rc1-py3
+  build_steps:
+    - pip3 install --no-cache-dir -U polyaxon-client==0.5.5
+
+run:
+  cmd:  python3 fc_mnist.py --num_neurons={{ num_neurons }} \
+                         --dropout={{ dropout }} \
+                         --lr={{ lr }} \
+                         --optimizer={{ optimizer }}
